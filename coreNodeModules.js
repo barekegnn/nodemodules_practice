@@ -86,40 +86,80 @@
 //   console.log("I'm listening to you");
 // });
 
-// serving static page using http server
+
+// **#SERVING STATIC PAGE USING HTTP SERVER**
+
+// const http = require("http");
+// const fs = require("fs");
+// const path = require("path");
+// const mime = require("mime-types");
+
+// const server = http.createServer((req, res) => {
+//   let filepath;
+
+//   // Determine which file to serve based on the URL
+//   if (req.url === "/" || req.url === "/index.html") {
+//     filepath = path.join(__dirname, "apple-html-css-replica", "index.html");
+//     // } else if (req.url === "/about.html") {
+//     //   filepath = path.join(__dirname, "HTML", "about.html");
+//     // } else if (req.url === "/contact.html") {
+//     //   filepath = path.join(__dirname, "HTML", "contact.html");
+//   } else {
+//     filepath = path.join(null); // No matching file
+//   }
+
+//   // If filepath is null, send a 404 response
+//   if (filepath === null) {
+//     res.writeHead(404, { "Content-Type": "text/plain" });
+//     res.end("404: Page Not Found");
+//     return; // Stop further execution
+//   }
+
+//   // Read and serve the file
+//   fs.readFile(filepath, (err, data) => {
+//     if (err) {
+//       res.writeHead(500, { "Content-Type": "text/plain" });
+//       res.end("Internal Server Error");
+//     } else {
+//       const contentType = mime.lookup(filepath);
+//       res.writeHead(200, { "Content-Type": contentType });
+//       res.end(data);
+//     }
+//   });
+// });
+
+// // Define the port and start the server
+// const port = 7973;
+// server.listen(port, () => {
+//   console.log(`Server is running at http://localhost:${port}`);
+// });
+
+//# SERVING APPLE'S STATIC PAGE USING MIME-TYPE.LOOKUP TO RENDERING THE CSS, IMG AND OTHER NON TEXT/HTML FILES
 
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const mime = require("mime-types");
 
 const server = http.createServer((req, res) => {
   let filepath;
 
-  // Determine which file to serve based on the URL
+  // Determine the file path based on the URL
   if (req.url === "/" || req.url === "/index.html") {
-    filepath = path.join(__dirname, "HTML", "index.html");
-  } else if (req.url === "/about.html") {
-    filepath = path.join(__dirname, "HTML", "about.html");
-  } else if (req.url === "/contact.html") {
-    filepath = path.join(__dirname, "HTML", "contact.html");
+    filepath = path.join(__dirname, "apple-html-css-replica", "index.html");
   } else {
-    filepath = null; // No matching file
-  }
-
-  // If filepath is null, send a 404 response
-  if (filepath === null) {
-    res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end("404: Page Not Found");
-    return; // Stop further execution
+    // Handle other resources (CSS, images, etc.)
+    filepath = path.join(__dirname, "apple-html-css-replica", req.url);
   }
 
   // Read and serve the file
   fs.readFile(filepath, (err, data) => {
     if (err) {
-      res.writeHead(500, { "Content-Type": "text/plain" });
-      res.end("Internal Server Error");
+      res.writeHead(404, { "Content-Type": "text/plain" }); // Send 404 for missing files
+      res.end("404: File Not Found");
     } else {
-      res.writeHead(200, { "Content-Type": "text/html" });
+      const contentType = mime.lookup(filepath);
+      res.writeHead(200, { "Content-Type": contentType });
       res.end(data);
     }
   });
